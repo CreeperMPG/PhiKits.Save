@@ -9,6 +9,11 @@
 
 **注意：目前 PhiKits.Save 支持的 Phigros 版本范围为 `3.16.0 (133) ~ 3.20.0 (154)`。对于即将到来的 `4.0.0` 版本的存档处理可能存在问题。**
 
+## 🔗 相关项目
+
+- [Phigros Shell](https://github.com/CreeperMPG/PhigrosShell): 此项目的 Shell 版本，使用虚拟文件管理系统实现对存档的读写。Phigros Shell 从 1.3.0 版本开始使用 PhiKits.Save 进行存档读写。
+- [PhiShell Studio](https://github.com/CreeperMPG/PhiShellStudio): PhiShell 的 GUI 版本，使用 Avalonia UI 构建，支持 Windows/Linux/iOS/Android。
+
 ## ✨ 功能
 
 - **存档格式读写** — 解析 / 生成 Phigros `.save` 存档（五个加密条目）
@@ -136,6 +141,11 @@ var package = SavePackage.FromZipFile(path);
 package.GameVersion = 154;
 package.SaveVersion  = 6;
 ```
+
+## ⚡ Vibe-Coding 信息
+
+此项目前身 [PhigrosArchive](https://github.com/CreeperMPG/PhigrosArchive) 均为手写代码。
+PhiKits.Save 中的 `CreeperMPG.PhiKits.Save.CloudStorage` 和 `CreeperMPG.PhiKits.Save.Taptap` 在编写时使用 DeepSeek-V4.1-Flash 对 [PhigrosArchive](https://github.com/CreeperMPG/PhigrosArchive) 进行参考性迁移。
 
 ## 📄 授权
 
