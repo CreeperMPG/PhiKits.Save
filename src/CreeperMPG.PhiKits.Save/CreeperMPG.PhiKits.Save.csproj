@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net10.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageId>CreeperMPG.PhiKits.Save</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>CreeperMPG</Authors>
+		<Description>Phigros 存档处理、TapTap 二维码登录与云存档的 .NET 类库</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/CreeperMPG/PhiKits.Save</RepositoryUrl>
+		<PackageTags>phigros;save;taptap</PackageTags>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0|AnyCPU'">
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0|AnyCPU'">
+		<DebugType>portable</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="CreeperMPG.PhiKits.Save.Tests" />
+	</ItemGroup>
+
+	<!-- PackageReadmeFile 声明的文件必须真的打进包，否则 pack 报 NU5039。
+	     README 在仓库根，csproj 在 src/ 下，所以用 ..\..\ 回退。 -->
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,63 @@
+## .NET 构建产物
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]64/
+[Aa][Rr][Mm]/
+build/
+bld/
+[Oo]ut/
+artifacts/
+*.dll
+*.pdb
+*.user
+*.suo
+*.cache
+*.tlog
+*.binlog
+
+## Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+*.userprefs
+*.DotSettings.user
+
+## 测试与覆盖率
+[Tt]est[Rr]esult*/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+## NuGet
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+packages/
+!packages/build/
+
+## OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+## 存档样本 —— 含真实玩家数据，绝不入库
+##
+## ⚠️ 这里必须把项目自己的目录排除掉：
+## 在 Windows / macOS 上 git 的路径匹配**不区分大小写**，
+## 于是 `*.save` 会连目录 `CreeperMPG.PhiKits.Save` 一起匹配，
+## 导致整个 src/CreeperMPG.PhiKits.Save/ 被忽略（曾实测复现）。
+*.save
+!CreeperMPG.PhiKits.Save/
+!**/CreeperMPG.PhiKits.Save/

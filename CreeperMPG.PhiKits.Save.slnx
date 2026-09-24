@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/CreeperMPG.PhiKits.Save/CreeperMPG.PhiKits.Save.csproj" />
+  <Project Path="test/CreeperMPG.PhiKits.Save.Tests/CreeperMPG.PhiKits.Save.Tests.csproj" />
+</Solution>
