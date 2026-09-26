@@ -88,6 +88,10 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             }
             return ms.ToArray();
         }
+        byte ISaveEntry.GetEntryVersionBySaveVersion(int saveVersion)
+        {
+            return 1;
+        }
 
         // ── RKS 计算 ──
 

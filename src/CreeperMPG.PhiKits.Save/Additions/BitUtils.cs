@@ -8,9 +8,16 @@ namespace CreeperMPG.PhiKits.Save.Additions
 {
     internal static class BitUtils
     {
-        internal static bool GetBit(int value, int position)
+        internal static bool GetBit(byte value, int position)
         {
             return (value & (1 << position)) != 0;
+        }
+        public static void SetBit(ref byte value, int bitIndex, bool on)
+        {
+            if (on)
+                value |= (byte)(1 << bitIndex);
+            else
+                value &= (byte)~(1 << bitIndex);
         }
         // 变长整数（Protobuf VarInt 格式）
         internal static int ReadProtobufVarInt(BinaryReader reader)

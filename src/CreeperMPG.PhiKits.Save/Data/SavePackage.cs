@@ -16,7 +16,7 @@ namespace CreeperMPG.PhiKits.Save.Data
         public PhigrosSettings Settings { get; set; } = new();
         public PhigrosRecord GameRecord { get; set; } = new();
         public PhigrosKey GameKey { get; set; } = new();
-        public byte SaveVersion { get; set; } = 6;
+        public byte SaveVersion { get; set; } = 7;
         public int GameVersion { get; set; }
         private static readonly byte[] AESKey =
         {
@@ -205,6 +205,46 @@ namespace CreeperMPG.PhiKits.Save.Data
             var summary = GenerateSummary();
             summary.RankingScore = GameRecord.CalculateRankingScore(difficultyProvider);
             return summary;
+        }
+
+        // [SaveVersion] GameVersion UpdateContent => EntryFileName EntryVersion
+        // [1] (INITIAL VERSION)
+        // [2] 77  RANDOM   => GameProgress V2
+        // [3] 78  CHAP8    => GameProgress V3
+        // [4] 87  CAMELLIA => GameKey      V2
+        // [5] 108 TAKUMI3  => GameProgress V4
+        // [6] 111 Side4    => GameKey      V3
+        // [7] 155 CHAP9    => GameProgress V5
+        public static int GetSaveVersionByGameVersion(int gameVersion)
+        {
+            if (gameVersion < 77)
+            {
+                return 1;
+            }
+            else if (gameVersion < 78)
+            {
+                return 2;
+            }
+            else if (gameVersion < 87)
+            {
+                return 3;
+            }
+            else if (gameVersion < 108)
+            {
+                return 4;
+            }
+            else if (gameVersion < 111)
+            {
+                return 5;
+            }
+            else if (gameVersion < 155)
+            {
+                return 6;
+            }
+            else
+            {
+                return 7;
+            }
         }
     }
 }

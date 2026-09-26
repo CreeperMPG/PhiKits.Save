@@ -15,7 +15,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         public byte LanotaReadKeys { get; set; }
         public bool CamelliaReadKey { get; set; }
         public byte SideStory4BeginReadKey { get; set; }
-        public byte OldScoreClearedV390 { get; set; }
+        public byte OldScoreClearedV390 { get; set; } = 1;
         public byte[] OverflowData { get; set; } = Array.Empty<byte>();
         public void Deserialize(byte[] data)
         {
@@ -51,7 +51,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             LanotaReadKeys = reader.ReadByte();
             CamelliaReadKey = reader.ReadByte() != 0;
             SideStory4BeginReadKey = reader.ReadByte();
-            OldScoreClearedV390 = reader.ReadByte();
+            OldScoreClearedV390 = reader.ReadByte(); // 3.9.0 更新次难度谱面，清除成绩
 
             // overflow
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
@@ -100,6 +100,22 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             writer.Write(OverflowData);
 
             return ms.ToArray();
+        }
+
+        byte ISaveEntry.GetEntryVersionBySaveVersion(int saveVersion)
+        {
+            if (saveVersion < 4)
+            {
+                return 1;
+            }
+            else if (saveVersion < 6)
+            {
+                return 2; // 极星卫
+            }
+            else
+            {
+                return 3; // 无相乡
+            }
         }
     }
 }

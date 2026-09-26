@@ -1,6 +1,7 @@
 using CreeperMPG.PhiKits.Save.Additions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,36 +35,50 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         {
             using var ms = new MemoryStream(data);
             using var reader = new BinaryReader(ms);
-
-            byte flags = reader.ReadByte();
-            IsFirstRun = BitUtils.GetBit(flags, 0);
-            LegacyChapterFinished = BitUtils.GetBit(flags, 1);
-            AlreadyShowCollectionTip = BitUtils.GetBit(flags, 2);
-            AlreadyShowAutoUnlockINTip = BitUtils.GetBit(flags, 3);
-            Completed = BitUtils.ReadString(reader);
-            SongUpdateInfo = BitUtils.ReadProtobufVarInt(reader);
-            ChallengeModeRank = reader.ReadInt16();
-            int[] components = 
+            if (EntryVersion >= 1)
             {
-                BitUtils.ReadProtobufVarInt(reader),
-                BitUtils.ReadProtobufVarInt(reader),
-                BitUtils.ReadProtobufVarInt(reader),
-                BitUtils.ReadProtobufVarInt(reader),
-                BitUtils.ReadProtobufVarInt(reader),
-            };
-            Money = new PhiData(components);
-            UnlockFlagOfSpasmodic = reader.ReadByte();
-            UnlockFlagOfIgallta = reader.ReadByte();
-            UnlockFlagOfRrharil = reader.ReadByte();
-            FlagOfSongRecordKey = reader.ReadByte();
-            RandomVersionUnlocked = reader.ReadByte();
+                byte flags = reader.ReadByte();
+                IsFirstRun = BitUtils.GetBit(flags, 0);
+                LegacyChapterFinished = BitUtils.GetBit(flags, 1);
+                AlreadyShowCollectionTip = BitUtils.GetBit(flags, 2);
+                AlreadyShowAutoUnlockINTip = BitUtils.GetBit(flags, 3);
+                Completed = BitUtils.ReadString(reader);
+                SongUpdateInfo = BitUtils.ReadProtobufVarInt(reader);
+                ChallengeModeRank = reader.ReadInt16();
+                int[] components =
+                {
+                    BitUtils.ReadProtobufVarInt(reader),
+                    BitUtils.ReadProtobufVarInt(reader),
+                    BitUtils.ReadProtobufVarInt(reader),
+                    BitUtils.ReadProtobufVarInt(reader),
+                    BitUtils.ReadProtobufVarInt(reader),
+                };
+                Money = new PhiData(components);
+                UnlockFlagOfSpasmodic = reader.ReadByte();
+                UnlockFlagOfIgallta = reader.ReadByte();
+                UnlockFlagOfRrharil = reader.ReadByte();
+                FlagOfSongRecordKey = reader.ReadByte();
+            }
+            if (EntryVersion >= 2)
+            {
+                RandomVersionUnlocked = reader.ReadByte();
+            }
+            if (EntryVersion >= 3)
+            {
+                byte chapter8Info = reader.ReadByte();
+                Chapter8UnlockBegin = BitUtils.GetBit(chapter8Info, 0);
+                Chapter8UnlockSecondPhase = BitUtils.GetBit(chapter8Info, 1);
+                Chapter8Passed = BitUtils.GetBit(chapter8Info, 2);
+                Chapter8SongUnlocked = reader.ReadByte();
+            }
+            if (EntryVersion >= 4)
+            {
+                FlagOfSongRecordKeyTakumi = reader.ReadByte();
+            }
+            if (EntryVersion >= 5)
+            {
 
-            byte chapter8Info = reader.ReadByte();
-            Chapter8UnlockBegin = BitUtils.GetBit(chapter8Info, 0);
-            Chapter8UnlockSecondPhase = BitUtils.GetBit(chapter8Info, 1);
-            Chapter8Passed = BitUtils.GetBit(chapter8Info, 2);
-            Chapter8SongUnlocked = reader.ReadByte();
-            FlagOfSongRecordKeyTakumi = reader.ReadByte();
+            }
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
         }
         public byte[] Serialize()
@@ -71,34 +86,72 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
 
-            byte flags = 0;
-            if (IsFirstRun) flags |= 1 << 0;
-            if (LegacyChapterFinished) flags |= 1 << 1;
-            if (AlreadyShowCollectionTip) flags |= 1 << 2;
-            if (AlreadyShowAutoUnlockINTip) flags |= 1 << 3;
-            writer.Write(flags);
-            writer.Write(BitUtils.WriteString(Completed));
-            writer.Write(BitUtils.WriteProtobufVarInt(SongUpdateInfo));
-            writer.Write(ChallengeModeRank);
+            if (EntryVersion >= 1)
+            {
+                byte flags = 0;
+                if (IsFirstRun) flags |= 1 << 0;
+                if (LegacyChapterFinished) flags |= 1 << 1;
+                if (AlreadyShowCollectionTip) flags |= 1 << 2;
+                if (AlreadyShowAutoUnlockINTip) flags |= 1 << 3;
+                writer.Write(flags);
+                writer.Write(BitUtils.WriteString(Completed));
+                writer.Write(BitUtils.WriteProtobufVarInt(SongUpdateInfo));
+                writer.Write(ChallengeModeRank);
 
-            foreach (int m in Money.GetComponents())
-                writer.Write(BitUtils.WriteProtobufVarInt(m));
+                foreach (int m in Money.GetComponents())
+                    writer.Write(BitUtils.WriteProtobufVarInt(m));
 
-            writer.Write(UnlockFlagOfSpasmodic);
-            writer.Write(UnlockFlagOfIgallta);
-            writer.Write(UnlockFlagOfRrharil);
-            writer.Write(FlagOfSongRecordKey);
-            writer.Write(RandomVersionUnlocked);
+                writer.Write(UnlockFlagOfSpasmodic);
+                writer.Write(UnlockFlagOfIgallta);
+                writer.Write(UnlockFlagOfRrharil);
+                writer.Write(FlagOfSongRecordKey);
+            }
+            if (EntryVersion >= 2)
+            {
+                writer.Write(RandomVersionUnlocked);
+            }
+            if (EntryVersion >= 3)
+            {
+                byte chapter8Info = 0;
+                if (Chapter8UnlockBegin) chapter8Info |= 1 << 0;
+                if (Chapter8UnlockSecondPhase) chapter8Info |= 1 << 1;
+                if (Chapter8Passed) chapter8Info |= 1 << 2;
+                writer.Write(chapter8Info);
+                writer.Write(Chapter8SongUnlocked);
+            }
+            if (EntryVersion >= 4)
+            {
+                writer.Write(FlagOfSongRecordKeyTakumi);
+            }
+            if (EntryVersion >= 5)
+            {
 
-            byte chapter8Info = 0;
-            if (Chapter8UnlockBegin) chapter8Info |= 1 << 0;
-            if (Chapter8UnlockSecondPhase) chapter8Info |= 1 << 1;
-            if (Chapter8Passed) chapter8Info |= 1 << 2;
-            writer.Write(chapter8Info);
-            writer.Write(Chapter8SongUnlocked);
-            writer.Write(FlagOfSongRecordKeyTakumi);
+            }
             writer.Write(OverflowData);
             return ms.ToArray();
+        }
+        byte ISaveEntry.GetEntryVersionBySaveVersion(int saveVersion)
+        {
+            if (saveVersion < 2)
+            {
+                return 1;
+            }
+            else if (saveVersion < 3)
+            {
+                return 2; // Random 单曲
+            }
+            else if (saveVersion < 5)
+            {
+                return 3; // 凌日潮汐
+            }
+            else if (saveVersion < 7)
+            {
+                return 4; // TAKUMI3 精选集
+            }
+            else
+            {
+                return 5; // 穹顶孤舟
+            }
         }
     }
     public class PhiData

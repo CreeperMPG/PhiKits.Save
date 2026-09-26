@@ -63,5 +63,9 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             writer.Write(OverflowData);
             return ms.ToArray();
         }
+        byte ISaveEntry.GetEntryVersionBySaveVersion(int saveVersion)
+        {
+            return 1;
+        }
     }
 }

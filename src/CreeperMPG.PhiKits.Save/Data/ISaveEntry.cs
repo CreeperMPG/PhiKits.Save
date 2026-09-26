@@ -12,5 +12,6 @@ namespace CreeperMPG.PhiKits.Save.Data
         public byte EntryVersion { get; set; }
         public void Deserialize(byte[] data);
         public byte[] Serialize();
+        public byte GetEntryVersionBySaveVersion(int saveVersion);
     }
 }
