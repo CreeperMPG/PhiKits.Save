@@ -15,7 +15,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         public byte LanotaReadKeys { get; set; }
         public bool CamelliaReadKey { get; set; }
         public byte SideStory4BeginReadKey { get; set; }
-        public byte MaimaiReadKey { get; set; }
+        public byte OldScoreClearedV390 { get; set; }
         public byte[] OverflowData { get; set; } = Array.Empty<byte>();
         public void Deserialize(byte[] data)
         {
@@ -51,7 +51,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             LanotaReadKeys = reader.ReadByte();
             CamelliaReadKey = reader.ReadByte() != 0;
             SideStory4BeginReadKey = reader.ReadByte();
-            MaimaiReadKey = reader.ReadByte();
+            OldScoreClearedV390 = reader.ReadByte();
 
             // overflow
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
@@ -94,7 +94,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             writer.Write(LanotaReadKeys);
             writer.Write((byte)(CamelliaReadKey ? 1 : 0));
             writer.Write(SideStory4BeginReadKey);
-            writer.Write(MaimaiReadKey);
+            writer.Write(OldScoreClearedV390);
 
             // overflow
             writer.Write(OverflowData);
