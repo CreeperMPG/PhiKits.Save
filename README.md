@@ -136,11 +136,15 @@ await player.DeleteSave(uploaded);                    // 删除槽位（记录 +
 - **`SaveVersion` / `GameVersion` 需要手动设置。** 这两个值只存在于云端摘要，不在存档文件里。
   从云端 `DownloadSave()` 时会自动灌入；但**从本地 `.save` 导入时二者为默认值**，上传前请自行赋值：
 
-```csharp
-var package = SavePackage.FromZipFile(path);
-package.GameVersion = 154;
-package.SaveVersion  = 6;
-```
+    ```csharp
+    var package = SavePackage.FromZipFile(path);
+    package.GameVersion = 154;
+    package.SaveVersion  = 6;
+    ```
+
+    `SavePackage.FromZipFile()` 后，程序会自动通过存档内容进行推断，但是有可能推断失败。（`SavePackage` 的 `TryInferSaveVersion` 方法可以推断版本）
+
+- `PhiKits.Save` 对 `EntryVersion` 较敏感，导出、导入时会参考设置的版本号。若进行手动存档升级但未导出新版本内容，请检查对应 `EntryVersion` 的设置。另外项目提供了一些 API（`SavePackage.TryInferSaveVersion`, `SavePackage.GetSaveVersionByGameVersion`, `ISaveEntry.GetEntryVersionBySaveVersion`）以进行版本设置。
 
 ## ⚡ Vibe-Coding 信息
 
