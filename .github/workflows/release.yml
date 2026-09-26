@@ -1,0 +1,51 @@
+name: release
+
+# 推送 v* 标签时发布：v1.0.0 → 版本号 1.0.0
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write        # 创建 Release 需要写权限
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # net6.0 与 net10.0 两个目标框架需要各自的 SDK
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            10.0.x
+
+      - name: 运行测试
+        run: dotnet test test/CreeperMPG.PhiKits.Save.Tests/CreeperMPG.PhiKits.Save.Tests.csproj -c Release
+
+      # 版本号取自标签：v1.0.0 -> 1.0.0
+      # 产出 artifacts/CreeperMPG.PhiKits.Save.<版本>.nupkg
+      - name: 打包
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "打包版本：$VERSION"
+          dotnet pack src/CreeperMPG.PhiKits.Save/CreeperMPG.PhiKits.Save.csproj \
+            -c Release \
+            -p:Version="$VERSION" \
+            -o artifacts
+
+      - name: 列出产物
+        run: ls -l artifacts
+
+      # 描述留空：不传 body / body_path / generate_release_notes 即可
+      - name: 创建 Release 并附上 nupkg
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.nupkg
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
