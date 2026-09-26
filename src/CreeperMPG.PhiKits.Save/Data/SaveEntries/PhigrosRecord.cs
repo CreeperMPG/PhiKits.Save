@@ -20,11 +20,11 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             using var ms = new MemoryStream(data);
             using var reader = new BinaryReader(ms);
             Records = new(StringComparer.OrdinalIgnoreCase);
-            int songsNum = BitUtils.ReadProtobufVarInt(reader);
+            int songsNum = BinaryUtils.ReadProtobufVarInt(reader);
 
             while (ms.Length - ms.Position > 0)
             {
-                string songID = BitUtils.ReadString(reader);
+                string songID = BinaryUtils.ReadString(reader);
                 reader.ReadByte(); // non-null count byte (ignored on read)
                 byte availableDifficulties = reader.ReadByte();
                 byte fc = reader.ReadByte();
@@ -33,13 +33,13 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
 
                 for (int i = 0; i < 5; i++)
                 {
-                    if (BitUtils.GetBit(availableDifficulties, i))
+                    if (BinaryUtils.GetBit(availableDifficulties, i))
                     {
                         levels[i] = new LevelRecord()
                         {
                             Score = reader.ReadUInt32(),
                             Acc = reader.ReadSingle(),
-                            Fc = BitUtils.GetBit(fc, i),
+                            Fc = BinaryUtils.GetBit(fc, i),
                         };
                     }
                 }
@@ -51,11 +51,11 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
-            writer.Write(BitUtils.WriteProtobufVarInt(Records.Count));
+            writer.Write(BinaryUtils.WriteProtobufVarInt(Records.Count));
 
             foreach (var (key, diffInfo) in Records)
             {
-                writer.Write(BitUtils.WriteString(key));
+                writer.Write(BinaryUtils.WriteString(key));
 
                 // 固定5位置: 0=EZ 1=HD 2=IN 3=AT 4=Legacy
                 int nonNullCount = 0;

@@ -70,8 +70,8 @@ namespace CreeperMPG.PhiKits.Save.Data
                 SaveVersion = reader.ReadByte();
                 Challenge = reader.ReadUInt16();
                 RankingScore = reader.ReadSingle();
-                GameVersion = BitUtils.ReadProtobufVarInt(reader);
-                Avatar = BitUtils.ReadString(reader);
+                GameVersion = BinaryUtils.ReadProtobufVarInt(reader);
+                Avatar = BinaryUtils.ReadString(reader);
 
                 var achievements = new Achievement[4];
                 for (int i = 0; i < 4; i++)
@@ -96,7 +96,7 @@ namespace CreeperMPG.PhiKits.Save.Data
             writer.Write(SaveVersion);
             writer.Write(Challenge);
             writer.Write(RankingScore);
-            writer.Write(BitUtils.WriteProtobufVarInt(GameVersion));
+            writer.Write(BinaryUtils.WriteProtobufVarInt(GameVersion));
 
             byte[] avatarBytes = Encoding.UTF8.GetBytes(Avatar);
             writer.Write((byte)avatarBytes.Length);

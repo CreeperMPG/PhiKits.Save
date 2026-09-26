@@ -49,7 +49,7 @@ namespace CreeperMPG.PhiKits.Save.CloudStorage
             byte[] zipBytes = await s_client.GetByteArrayAsync(FileUrl, cancellationToken).ConfigureAwait(false);
             var save = SavePackage.FromZipBytes(zipBytes);
             save.GameVersion = CloudSummary?.GameVersion ?? 0;
-            save.SaveVersion = CloudSummary?.SaveVersion ?? 6;
+            save.SaveVersion = CloudSummary?.SaveVersion ?? 7;
             return save;
         }
     }

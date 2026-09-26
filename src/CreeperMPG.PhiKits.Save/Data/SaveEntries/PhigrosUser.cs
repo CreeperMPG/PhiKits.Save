@@ -20,10 +20,10 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         {
             using var ms = new MemoryStream(data);
             using var reader = new BinaryReader(ms);
-            ShowPlayerId = BitUtils.GetBit(reader.ReadByte(), 0);
-            SelfIntro = BitUtils.ReadString(reader);
-            Avatar = BitUtils.ReadString(reader);
-            Background = BitUtils.ReadString(reader);
+            ShowPlayerId = BinaryUtils.GetBit(reader.ReadByte(), 0);
+            SelfIntro = BinaryUtils.ReadString(reader);
+            Avatar = BinaryUtils.ReadString(reader);
+            Background = BinaryUtils.ReadString(reader);
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
         }
 
@@ -34,9 +34,9 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             byte flags = 0;
             if (ShowPlayerId) flags |= 1 << 0;
             writer.Write(flags);
-            writer.Write(BitUtils.WriteString(SelfIntro));
-            writer.Write(BitUtils.WriteString(Avatar));
-            writer.Write(BitUtils.WriteString(Background));
+            writer.Write(BinaryUtils.WriteString(SelfIntro));
+            writer.Write(BinaryUtils.WriteString(Avatar));
+            writer.Write(BinaryUtils.WriteString(Background));
             writer.Write(OverflowData);
             return ms.ToArray();
         }

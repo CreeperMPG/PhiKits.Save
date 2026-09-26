@@ -30,6 +30,12 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         public bool Chapter8Passed { get; set; }
         public byte Chapter8SongUnlocked { get; set; }
         public byte FlagOfSongRecordKeyTakumi { get; set; }
+        public bool Chapter9UnlockBegin { get; set; }
+        public bool Chapter9SecretChallengePendingLifeUnlock { get; set; }
+        public bool[] Chapter9SongUnlocked { get; set; } = new bool[8];
+        public byte Chapter9SecretChallengeLifeTier { get; set; }
+        public byte Chapter9SecretChallengeSelectedLifeTier { get; set; }
+        public string Chapter9SecretPassword { get; set; } = "0";
         public byte[] OverflowData { get; set; } = Array.Empty<byte>();
         public void Deserialize(byte[] data)
         {
@@ -38,20 +44,20 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             if (EntryVersion >= 1)
             {
                 byte flags = reader.ReadByte();
-                IsFirstRun = BitUtils.GetBit(flags, 0);
-                LegacyChapterFinished = BitUtils.GetBit(flags, 1);
-                AlreadyShowCollectionTip = BitUtils.GetBit(flags, 2);
-                AlreadyShowAutoUnlockINTip = BitUtils.GetBit(flags, 3);
-                Completed = BitUtils.ReadString(reader);
-                SongUpdateInfo = BitUtils.ReadProtobufVarInt(reader);
+                IsFirstRun = BinaryUtils.GetBit(flags, 0);
+                LegacyChapterFinished = BinaryUtils.GetBit(flags, 1);
+                AlreadyShowCollectionTip = BinaryUtils.GetBit(flags, 2);
+                AlreadyShowAutoUnlockINTip = BinaryUtils.GetBit(flags, 3);
+                Completed = BinaryUtils.ReadString(reader);
+                SongUpdateInfo = BinaryUtils.ReadProtobufVarInt(reader);
                 ChallengeModeRank = reader.ReadInt16();
                 int[] components =
                 {
-                    BitUtils.ReadProtobufVarInt(reader),
-                    BitUtils.ReadProtobufVarInt(reader),
-                    BitUtils.ReadProtobufVarInt(reader),
-                    BitUtils.ReadProtobufVarInt(reader),
-                    BitUtils.ReadProtobufVarInt(reader),
+                    BinaryUtils.ReadProtobufVarInt(reader),
+                    BinaryUtils.ReadProtobufVarInt(reader),
+                    BinaryUtils.ReadProtobufVarInt(reader),
+                    BinaryUtils.ReadProtobufVarInt(reader),
+                    BinaryUtils.ReadProtobufVarInt(reader),
                 };
                 Money = new PhiData(components);
                 UnlockFlagOfSpasmodic = reader.ReadByte();
@@ -66,9 +72,9 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             if (EntryVersion >= 3)
             {
                 byte chapter8Info = reader.ReadByte();
-                Chapter8UnlockBegin = BitUtils.GetBit(chapter8Info, 0);
-                Chapter8UnlockSecondPhase = BitUtils.GetBit(chapter8Info, 1);
-                Chapter8Passed = BitUtils.GetBit(chapter8Info, 2);
+                Chapter8UnlockBegin = BinaryUtils.GetBit(chapter8Info, 0);
+                Chapter8UnlockSecondPhase = BinaryUtils.GetBit(chapter8Info, 1);
+                Chapter8Passed = BinaryUtils.GetBit(chapter8Info, 2);
                 Chapter8SongUnlocked = reader.ReadByte();
             }
             if (EntryVersion >= 4)
@@ -77,7 +83,18 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             }
             if (EntryVersion >= 5)
             {
-
+                byte chapter9Info = reader.ReadByte();
+                Chapter9UnlockBegin = BinaryUtils.GetBit(chapter9Info, 0);
+                Chapter9SecretChallengePendingLifeUnlock = BinaryUtils.GetBit(chapter9Info, 1);
+                byte songUnlockBits = reader.ReadByte();
+                for (int i = 0; i < Chapter9SongUnlocked.Length; i++)
+                {
+                    Chapter9SongUnlocked[i] = BinaryUtils.GetBit(songUnlockBits, i);
+                }
+                byte tierByte = reader.ReadByte();
+                Chapter9SecretChallengeLifeTier = (byte)(tierByte & 0x0F);          // 低 4 位
+                Chapter9SecretChallengeSelectedLifeTier = (byte)((tierByte >> 4) & 0x0F); // 高 4 位
+                Chapter9SecretPassword = BinaryUtils.ReadString(reader);
             }
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
         }
@@ -94,12 +111,12 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                 if (AlreadyShowCollectionTip) flags |= 1 << 2;
                 if (AlreadyShowAutoUnlockINTip) flags |= 1 << 3;
                 writer.Write(flags);
-                writer.Write(BitUtils.WriteString(Completed));
-                writer.Write(BitUtils.WriteProtobufVarInt(SongUpdateInfo));
+                writer.Write(BinaryUtils.WriteString(Completed));
+                writer.Write(BinaryUtils.WriteProtobufVarInt(SongUpdateInfo));
                 writer.Write(ChallengeModeRank);
 
                 foreach (int m in Money.GetComponents())
-                    writer.Write(BitUtils.WriteProtobufVarInt(m));
+                    writer.Write(BinaryUtils.WriteProtobufVarInt(m));
 
                 writer.Write(UnlockFlagOfSpasmodic);
                 writer.Write(UnlockFlagOfIgallta);
@@ -125,7 +142,22 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             }
             if (EntryVersion >= 5)
             {
-
+                byte flags = 0;
+                BinaryUtils.SetBit(ref flags, 0, Chapter9UnlockBegin);
+                BinaryUtils.SetBit(ref flags, 1, Chapter9SecretChallengePendingLifeUnlock);
+                writer.Write(flags);
+                byte songUnlockBits = 0;
+                for (int i = 0; i < Chapter9SongUnlocked.Length && i < 8; i++)
+                {
+                    BinaryUtils.SetBit(ref songUnlockBits, i, Chapter9SongUnlocked[i]);
+                }
+                writer.Write(songUnlockBits);
+                byte tierByte = (byte)(
+                    (Chapter9SecretChallengeLifeTier & 0x0F) |
+                    ((Chapter9SecretChallengeSelectedLifeTier & 0x0F) << 4)
+                );
+                writer.Write(tierByte);
+                writer.Write(BinaryUtils.WriteString(Chapter9SecretPassword));
             }
             writer.Write(OverflowData);
             return ms.ToArray();

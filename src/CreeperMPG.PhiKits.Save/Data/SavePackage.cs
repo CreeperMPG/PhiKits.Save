@@ -52,7 +52,7 @@ namespace CreeperMPG.PhiKits.Save.Data
         /// 每次调用都重新读取属性，因为条目实例可被替换。
         /// </summary>
         private List<ISaveEntry> CreateEntryList()
-            => new List<ISaveEntry>(5) { GameProgress, User, Settings, GameRecord, GameKey };
+            => new List<ISaveEntry>(5) { GameKey, GameProgress, GameRecord, Settings, User };
 
         // ── zip 打包 / 解包 ──
 

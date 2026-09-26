@@ -29,11 +29,11 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             using var ms = new MemoryStream(data);
             using var reader = new BinaryReader(ms);
             byte flags = reader.ReadByte();
-            ChordSupport = BitUtils.GetBit(flags, 0);
-            FcAPIndicator = BitUtils.GetBit(flags, 1);
-            EnableHitSound = BitUtils.GetBit(flags, 2);
-            LowResolutionMode = BitUtils.GetBit(flags, 3);
-            DeviceName = BitUtils.ReadString(reader);
+            ChordSupport = BinaryUtils.GetBit(flags, 0);
+            FcAPIndicator = BinaryUtils.GetBit(flags, 1);
+            EnableHitSound = BinaryUtils.GetBit(flags, 2);
+            LowResolutionMode = BinaryUtils.GetBit(flags, 3);
+            DeviceName = BinaryUtils.ReadString(reader);
             Bright = reader.ReadSingle();
             MusicVolume = reader.ReadSingle();
             EffectVolume = reader.ReadSingle();
@@ -53,7 +53,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             if (EnableHitSound) flags |= 1 << 2;
             if (LowResolutionMode) flags |= 1 << 3;
             writer.Write(flags);
-            writer.Write(BitUtils.WriteString(DeviceName));
+            writer.Write(BinaryUtils.WriteString(DeviceName));
             writer.Write(Bright);
             writer.Write(MusicVolume);
             writer.Write(EffectVolume);

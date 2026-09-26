@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CreeperMPG.PhiKits.Save.Additions
 {
-    internal static class BitUtils
+    internal static class BinaryUtils
     {
         internal static bool GetBit(byte value, int position)
         {

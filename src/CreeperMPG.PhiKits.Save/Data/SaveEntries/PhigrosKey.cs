@@ -15,7 +15,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         public byte LanotaReadKeys { get; set; }
         public bool CamelliaReadKey { get; set; }
         public byte SideStory4BeginReadKey { get; set; }
-        public byte OldScoreClearedV390 { get; set; } = 1;
+        public byte OldScoreClearedV390 { get; set; } = 1; // 3.9.0 更新次难度谱面，清除成绩
         public byte[] OverflowData { get; set; } = Array.Empty<byte>();
         public void Deserialize(byte[] data)
         {
@@ -25,33 +25,40 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             using var reader = new BinaryReader(ms);
 
             // deserializationMap
-            KeyMap = new Dictionary<string, double[]>();
-            int count = BitUtils.ReadProtobufVarInt(reader);
-
-            for (int i = 0; i < count; i++)
+            if (EntryVersion >= 1)
             {
-                string key = BitUtils.ReadString(reader);
-                long entryStart = reader.BaseStream.Position;
+                KeyMap = new Dictionary<string, double[]>();
+                int count = BinaryUtils.ReadProtobufVarInt(reader);
 
-                byte entryOffset = reader.ReadByte();
-                byte len = reader.ReadByte();
-
-                double[] values = new double[5];
-                for (int ii = 0; ii < 5; ii++)
+                for (int i = 0; i < count; i++)
                 {
-                    if ((len >> ii & 1) != 0)
-                        values[ii] = reader.ReadByte();
+                    string key = BinaryUtils.ReadString(reader);
+                    long entryStart = reader.BaseStream.Position;
+
+                    byte entryOffset = reader.ReadByte();
+                    byte len = reader.ReadByte();
+
+                    double[] values = new double[5];
+                    for (int ii = 0; ii < 5; ii++)
+                    {
+                        if ((len >> ii & 1) != 0)
+                            values[ii] = reader.ReadByte();
+                    }
+
+                    KeyMap[key] = values;
+                    reader.BaseStream.Position = entryStart + entryOffset + 1;
                 }
-
-                KeyMap[key] = values;
-                reader.BaseStream.Position = entryStart + entryOffset + 1;
+                LanotaReadKeys = reader.ReadByte();
             }
-
-            // deserializationNodes
-            LanotaReadKeys = reader.ReadByte();
-            CamelliaReadKey = reader.ReadByte() != 0;
-            SideStory4BeginReadKey = reader.ReadByte();
-            OldScoreClearedV390 = reader.ReadByte(); // 3.9.0 更新次难度谱面，清除成绩
+            if (EntryVersion >= 2)
+            {
+                CamelliaReadKey = reader.ReadByte() != 0;
+            }
+            if (EntryVersion >= 3)
+            {
+                SideStory4BeginReadKey = reader.ReadByte();
+                OldScoreClearedV390 = reader.ReadByte();
+            }
 
             // overflow
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
@@ -61,40 +68,47 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
 
-            // serializationMap
-            writer.Write(BitUtils.WriteProtobufVarInt(KeyMap.Count));
-
-            foreach (var kvp in KeyMap)
+            if (EntryVersion >= 1)
             {
-                writer.Write(BitUtils.WriteString(kvp.Key));
-                long entryStart = writer.BaseStream.Position;
-                writer.Write((byte)0);
+                writer.Write(BinaryUtils.WriteProtobufVarInt(KeyMap.Count));
 
-                byte len = 0;
-                for (int i = 0; i < 5; i++)
+                foreach (var kvp in KeyMap)
                 {
-                    if (kvp.Value.Length > i && kvp.Value[i] != 0)
-                        len |= (byte)(1 << i);
+                    writer.Write(BinaryUtils.WriteString(kvp.Key));
+                    long entryStart = writer.BaseStream.Position;
+                    writer.Write((byte)0);
+
+                    byte len = 0;
+                    for (int i = 0; i < 5; i++)
+                    {
+                        if (kvp.Value.Length > i && kvp.Value[i] != 0)
+                            len |= (byte)(1 << i);
+                    }
+
+                    writer.Write(len);
+
+                    for (int i = 0; i < 5 && i < kvp.Value.Length; i++)
+                    {
+                        if ((len >> i & 1) != 0)
+                            writer.Write((byte)kvp.Value[i]);
+                    }
+
+                    long endPos = writer.BaseStream.Position;
+                    writer.BaseStream.Position = entryStart;
+                    writer.Write((byte)(endPos - entryStart - 1));
+                    writer.BaseStream.Position = endPos;
                 }
-
-                writer.Write(len);
-
-                for (int i = 0; i < 5 && i < kvp.Value.Length; i++)
-                {
-                    if ((len >> i & 1) != 0)
-                        writer.Write((byte)kvp.Value[i]);
-                }
-
-                long endPos = writer.BaseStream.Position;
-                writer.BaseStream.Position = entryStart;
-                writer.Write((byte)(endPos - entryStart - 1));
-                writer.BaseStream.Position = endPos;
+                writer.Write(LanotaReadKeys);
             }
-
-            writer.Write(LanotaReadKeys);
-            writer.Write((byte)(CamelliaReadKey ? 1 : 0));
-            writer.Write(SideStory4BeginReadKey);
-            writer.Write(OldScoreClearedV390);
+            if (EntryVersion >= 2)
+            {
+                writer.Write((byte)(CamelliaReadKey ? 1 : 0));
+            }
+            if (EntryVersion >= 3)
+            {
+                writer.Write(SideStory4BeginReadKey);
+                writer.Write(OldScoreClearedV390);
+            }
 
             // overflow
             writer.Write(OverflowData);

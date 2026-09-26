@@ -84,8 +84,9 @@ CreeperMPG.PhiKits.Save/
 > 已**删除**——版本号是条目自身的一部分，由容器代管既别扭（那个字典对外只读，没有写入途径），
 > 也不符合「数据自己管自己」。
 >
-> ⚠️ 各条目的**默认版本号目前统一是 `1`**（新建对象时用），真实值由项目所有者后续填写
-> （实测真实存档为 `gameProgress:4, user:1, settings:1, gameRecord:1, gameKey:3`）。
+> ⚠️ 各条目的**默认版本号**：
+> `gameProgress:4, user:1, settings:1, gameRecord:1, gameKey:3`；
+> 在 Phigros 4.0.0 中 gameProgress 更新为 5
 
 ## 云 API 要点
 
@@ -119,7 +120,7 @@ DELETE /1.1/files/{FileObjectID}            ← 存档文件（后）
 
 ### 版本号闭环
 
-`SaveVersion` / `GameVersion` **不在存档文件里**，只存在于云端摘要。所以：
+`SaveVersion` / `GameVersion` 在存档文件里存储，下载时会自动从云端摘要复制
 
 ```
 DownloadSave()  从 CloudSummary 灌进 SavePackage
@@ -158,8 +159,7 @@ GetPhigrosSessionAsync   → PlayerObject（X-LC-Sign = md5(ts+AppKey) + "," + t
 （`sessionToken` / `nickname` / `shortId` / `objectId` / `createdAt`），
 所以直接构造成 `PlayerObject` 返回。
 
-这也意味着 `Taptap` **单向引用 `CloudStorage`**。早先曾有一个只搬这五个字段的 `TaptapSession`，
-纯属重复定义（字段名还不一致：`ObjectId` vs `UserObjectID`、`CreatedAt` vs `CreateTime`），已删除。
+`Taptap` **单向引用 `CloudStorage`**。
 
 ### 失败约定（重要）
 
@@ -270,17 +270,10 @@ MSTest 3.1.1（`Microsoft.NET.Test.Sdk` 17.10.0-preview），`net10.0`。
 
 ## 版本控制
 
-**本仓库目前没有 git**（未 `git init`）。`.gitignore` 已经写好，供将来初始化时使用。
-
 > ⚠️ **`.gitignore` 里 `*.save` 那几条否定规则不能删。**
 > Windows / macOS 上 git 路径匹配**不区分大小写**，`*.save` 会连目录
 > `CreeperMPG.PhiKits.Save` 一起匹配，**导致整个 `src/CreeperMPG.PhiKits.Save/` 被忽略**
 > （曾实测复现）。必须保留：
-> ```gitignore
-> *.save
-> !CreeperMPG.PhiKits.Save/
-> !**/CreeperMPG.PhiKits.Save/
-> ```
 
 
 ## 尚待完成
@@ -292,7 +285,6 @@ MSTest 3.1.1（`Microsoft.NET.Test.Sdk` 17.10.0-preview），`net10.0`。
   ⚠️ 占位值的具体数值由项目所有者维护，**测试不要写死到它上面**（曾经因此失效过一次）。
 - `SaveSummary.ToBase64String` 写头像长度用单字节、读用 VarInt（短头像下等价，未验证长头像）
 - `PhigrosRecord.Serialize` 里的 `nonNullCount * 8 + 2` 可能是冗余字段
-- 仓库**尚未 `git init`**（`.gitignore` 已备好，但项目所有者目前**不要 git**）
 - 尚未发布到 NuGet（README 里按项目引用写）
 
 ## 已验证
