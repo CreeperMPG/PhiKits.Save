@@ -18,4 +18,8 @@
     <ProjectReference Include="..\..\src\CreeperMPG.PhiKits.Save\CreeperMPG.PhiKits.Save.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestData\*.save" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
