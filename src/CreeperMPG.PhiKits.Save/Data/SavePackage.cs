@@ -16,7 +16,7 @@ namespace CreeperMPG.PhiKits.Save.Data
         public PhigrosSettings Settings { get; set; } = new();
         public PhigrosRecord GameRecord { get; set; } = new();
         public PhigrosKey GameKey { get; set; } = new();
-        public byte SaveVersion { get; set; } = 7;
+        public byte SaveVersion { get; set; }
         public int GameVersion { get; set; }
         private static readonly byte[] AESKey =
         {
@@ -39,6 +39,11 @@ namespace CreeperMPG.PhiKits.Save.Data
                     // 第 0 字节是条目自带的版本号，由条目自己保管
                     entry.EntryVersion = content[0];
                     entry.Deserialize(DecryptData(content));
+                    // 自动推断存档版本
+                    if (SaveVersion == 0 && TryInferSaveVersion(out byte sv))
+                    {
+                        SaveVersion = sv;
+                    }
                 }
                 else
                 {
@@ -215,6 +220,37 @@ namespace CreeperMPG.PhiKits.Save.Data
         // [5] 108 TAKUMI3  => GameProgress V4
         // [6] 111 Side4    => GameKey      V3
         // [7] 155 CHAP9    => GameProgress V5
+
+        /// <summary>
+        /// 尝试通过存档 Entries 的状态反推 SaveVersion
+        /// </summary>
+        /// <param name="saveVersion">存档版本输出</param>
+        /// <returns>是否推断成功</returns>
+        public bool TryInferSaveVersion(out byte saveVersion)
+        {
+            if (GameProgress.EntryVersion <= 2)
+            {
+                saveVersion = GameProgress.EntryVersion; // 1, 2
+                return GameKey.EntryVersion == 1;
+            }
+            if (GameProgress.EntryVersion == 3)
+            {
+                saveVersion = (byte)(GameKey.EntryVersion + 2); // 3, 4
+                return GameKey.EntryVersion == 1 || GameKey.EntryVersion == 2;
+            }
+            if (GameProgress.EntryVersion == 4)
+            {
+                saveVersion = (byte)(GameKey.EntryVersion + 3); // 5, 6
+                return GameKey.EntryVersion == 2 || GameKey.EntryVersion == 3;
+            }
+            if (GameProgress.EntryVersion == 5)
+            {
+                saveVersion = 7; // 7
+                return GameKey.EntryVersion == 3;
+            }
+            saveVersion = 7;
+            return false;
+        }
         public static int GetSaveVersionByGameVersion(int gameVersion)
         {
             if (gameVersion < 77)
