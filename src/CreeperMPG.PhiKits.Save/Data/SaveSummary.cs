@@ -29,12 +29,12 @@ namespace CreeperMPG.PhiKits.Save.Data
         public float RankingScore { get; set; }
         public int GameVersion { get; set; }
         public string Avatar { get; set; } = string.Empty;
-        public SongDifficultySet<Achievement> Achievements { get; set; } = default!;
+        public SongLevelSet<Achievement> Achievements { get; set; } = default!;
 
         public SaveSummary() { }
 
         public SaveSummary(byte saveVersion, ushort challenge, float rankingScore,
-                           byte gameVersion, string avatar, SongDifficultySet<Achievement> achievements)
+                           byte gameVersion, string avatar, SongLevelSet<Achievement> achievements)
         {
             SaveVersion = saveVersion; Challenge = challenge; RankingScore = rankingScore;
             GameVersion = gameVersion; Avatar = avatar; Achievements = achievements;
@@ -82,7 +82,7 @@ namespace CreeperMPG.PhiKits.Save.Data
                         reader.ReadUInt16()
                     );
                 }
-                Achievements = new SongDifficultySet<Achievement>(achievements);
+                Achievements = new SongLevelSet<Achievement>(achievements);
                 return true;
             }
             catch { return false; }

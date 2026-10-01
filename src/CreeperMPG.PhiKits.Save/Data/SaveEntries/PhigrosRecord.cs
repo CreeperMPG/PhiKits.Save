@@ -12,7 +12,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
     {
         public string EntryFileName => "gameRecord";
         public byte EntryVersion { get; set; } = 1;
-        public Dictionary<string, SongDifficultySet<LevelRecord?>> Records { get; set; }
+        public Dictionary<string, SongLevelSet<LevelRecord?>> Records { get; set; }
             = new(StringComparer.OrdinalIgnoreCase);
 
         public void Deserialize(byte[] data)
@@ -43,7 +43,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                         };
                     }
                 }
-                Records[songID] = new SongDifficultySet<LevelRecord?>(levels);
+                Records[songID] = new SongLevelSet<LevelRecord?>(levels);
             }
         }
 

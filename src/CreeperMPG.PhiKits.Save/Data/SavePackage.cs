@@ -177,7 +177,7 @@ namespace CreeperMPG.PhiKits.Save.Data
                 CountStats(record.AT, ref atClr, ref atFC, ref atPhi);
             }
 
-            summary.Achievements = new SongDifficultySet<Achievement>(
+            summary.Achievements = new SongLevelSet<Achievement>(
                 new Achievement((ushort)ezClr, (ushort)ezFC, (ushort)ezPhi),
                 new Achievement((ushort)hdClr, (ushort)hdFC, (ushort)hdPhi),
                 new Achievement((ushort)inClr, (ushort)inFC, (ushort)inPhi),

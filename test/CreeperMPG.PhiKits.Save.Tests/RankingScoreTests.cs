@@ -32,7 +32,7 @@ public class RankingScoreTests
         {
             if (!record.Records.TryGetValue(songId, out var set))
             {
-                set = new SongDifficultySet<LevelRecord?>();
+                set = new SongLevelSet<LevelRecord?>();
                 record.Records[songId] = set;
             }
             set[diffIndex] = new LevelRecord(score, acc);

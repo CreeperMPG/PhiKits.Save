@@ -41,7 +41,7 @@ public class SaveSummaryBase64Tests
             RankingScore = 15.5f,
             GameVersion = 30000,
             Avatar = "avatar-x",
-            Achievements = new SongDifficultySet<Achievement>(
+            Achievements = new SongLevelSet<Achievement>(
                 new Achievement(10, 5, 1),
                 new Achievement(20, 10, 2),
                 new Achievement(30, 15, 3),

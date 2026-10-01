@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CreeperMPG.PhiKits.Save.Data
 {
-    public class SongDifficultySet<T>
+    public class SongLevelSet<T>
     {
         public T? EZ { get; set; }
         public T? HD { get; set; }
@@ -72,14 +72,14 @@ namespace CreeperMPG.PhiKits.Save.Data
                 ["AT"] = AT
             };
         }
-        public SongDifficultySet() { }
+        public SongLevelSet() { }
 
-        public SongDifficultySet(T? ez = default, T? hd = default, T? in_ = default, T? at = default, T? legacy = default)
+        public SongLevelSet(T? ez = default, T? hd = default, T? in_ = default, T? at = default, T? legacy = default)
         {
             EZ = ez; HD = hd; IN = in_; AT = at; Legacy = legacy;
         }
 
-        public SongDifficultySet(IEnumerable<T> infos)
+        public SongLevelSet(IEnumerable<T> infos)
         {
             var e = infos.GetEnumerator();
             EZ = e.MoveNext() ? e.Current : default!;
