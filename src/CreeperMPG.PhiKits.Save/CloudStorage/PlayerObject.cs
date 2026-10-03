@@ -164,7 +164,7 @@ namespace CreeperMPG.PhiKits.Save.CloudStorage
                 throw new InvalidOperationException(
                     "UserObjectID 为空，无法上传。请先用 FetchUserInfo() 补齐玩家信息。");
 
-            string modifiedAt = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff") + "Z";
+            string modifiedAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fff") + "Z";
 
             // 1. 申请上传 Token
             var fileMeta = new
