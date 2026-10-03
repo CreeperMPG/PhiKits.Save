@@ -84,9 +84,13 @@ CreeperMPG.PhiKits.Save/
 > 已**删除**——版本号是条目自身的一部分，由容器代管既别扭（那个字典对外只读，没有写入途径），
 > 也不符合「数据自己管自己」。
 >
-> ⚠️ 各条目的**默认版本号**：
-> `gameProgress:4, user:1, settings:1, gameRecord:1, gameKey:3`；
-> 在 Phigros 4.0.0 中 gameProgress 更新为 5
+> ⚠️ 各条目的**默认版本号**（代码里的 `EntryVersion` 初始值）：
+> `gameProgress:6, user:1, settings:1, gameRecord:1, gameKey:3`
+>
+> `gameProgress` 的历史：4.0.0（CHAP9P1，GameVer 155）→ **V5**；
+> 4.0.1（CHAP9P2，GameVer 157）→ **V6**（SaveVersion 仍是 7，见 `SavePackage.cs` 版本注释表）。
+> V6 = V5 原样 + 尾部 3 字节（`Chapter9Phase2SongUnlocked` 位图 / 3 个 bool 标志 / `Chapter9Phase2Step`）。
+> 各条目默认值以**代码为准**，本表只作概览。
 
 ## 云 API 要点
 

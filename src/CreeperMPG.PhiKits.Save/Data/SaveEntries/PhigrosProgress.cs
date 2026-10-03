@@ -11,7 +11,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
     public class PhigrosProgress : ISaveEntry
     {
         public string EntryFileName => "gameProgress";
-        public byte EntryVersion { get; set; } = 4;
+        public byte EntryVersion { get; set; } = 6;
         public bool IsFirstRun { get; set; }
         public bool LegacyChapterFinished { get; set; }
         public bool AlreadyShowCollectionTip { get; set; }
@@ -28,14 +28,19 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
         public bool Chapter8UnlockBegin { get; set; }
         public bool Chapter8UnlockSecondPhase { get; set; }
         public bool Chapter8Passed { get; set; }
-        public byte Chapter8SongUnlocked { get; set; }
+        public bool[] Chapter8SongUnlocked { get; set; } = new bool[6];
         public byte FlagOfSongRecordKeyTakumi { get; set; }
         public bool Chapter9UnlockBegin { get; set; }
         public bool Chapter9SecretChallengePendingLifeUnlock { get; set; }
-        public bool[] Chapter9SongUnlocked { get; set; } = new bool[8];
+        public bool[] Chapter9SongUnlocked { get; set; } = new bool[6];
         public byte Chapter9SecretChallengeLifeTier { get; set; }
         public byte Chapter9SecretChallengeSelectedLifeTier { get; set; }
         public string Chapter9SecretPassword { get; set; } = "0";
+        public bool[] Chapter9Phase2SongUnlocked { get; set; } = new bool[6];
+        public bool Chapter9Phase2Begin { get; set; }
+        public bool Chapter9Phase2Passed { get; set; }
+        public bool C9BaselineChallengeReached { get; set; }
+        public byte Chapter9Phase2Step { get; set; }
         public byte[] OverflowData { get; set; } = Array.Empty<byte>();
         public void Deserialize(byte[] data)
         {
@@ -75,7 +80,11 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                 Chapter8UnlockBegin = BinaryUtils.GetBit(chapter8Info, 0);
                 Chapter8UnlockSecondPhase = BinaryUtils.GetBit(chapter8Info, 1);
                 Chapter8Passed = BinaryUtils.GetBit(chapter8Info, 2);
-                Chapter8SongUnlocked = reader.ReadByte();
+                byte songUnlockBits = reader.ReadByte();
+                for (int i = 0; i < Chapter8SongUnlocked.Length; i++)
+                {
+                    Chapter8SongUnlocked[i] = BinaryUtils.GetBit(songUnlockBits, i);
+                }
             }
             if (EntryVersion >= 4)
             {
@@ -95,6 +104,27 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                 Chapter9SecretChallengeLifeTier = (byte)(tierByte & 0x0F);          // 低 4 位
                 Chapter9SecretChallengeSelectedLifeTier = (byte)((tierByte >> 4) & 0x0F); // 高 4 位
                 Chapter9SecretPassword = BinaryUtils.ReadString(reader);
+            }
+            if (EntryVersion >= 6)
+            {
+                if (EntryVersion == 6 && ms.Length == ms.Position) // GetEntryVersionBySaveVersion 推断错误，版本实际上是 V5
+                {
+                    EntryVersion = 5;
+                }
+                else
+                {
+                    // 正常 V6 逻辑
+                    byte songUnlockBits = reader.ReadByte();
+                    for (int i = 0; i < Chapter9Phase2SongUnlocked.Length; i++)
+                    {
+                        Chapter9Phase2SongUnlocked[i] = BinaryUtils.GetBit(songUnlockBits, i);
+                    }
+                    byte stateByte = reader.ReadByte();
+                    Chapter9Phase2Begin = BinaryUtils.GetBit(stateByte, 0);
+                    Chapter9Phase2Passed = BinaryUtils.GetBit(stateByte, 1);
+                    C9BaselineChallengeReached = BinaryUtils.GetBit(stateByte, 2);
+                    Chapter9Phase2Step = reader.ReadByte();
+                }
             }
             OverflowData = reader.ReadBytes((int)(ms.Length - ms.Position));
         }
@@ -134,7 +164,12 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                 if (Chapter8UnlockSecondPhase) chapter8Info |= 1 << 1;
                 if (Chapter8Passed) chapter8Info |= 1 << 2;
                 writer.Write(chapter8Info);
-                writer.Write(Chapter8SongUnlocked);
+                byte songUnlockBits = 0;
+                for (int i = 0; i < Chapter8SongUnlocked.Length; i++)
+                {
+                    BinaryUtils.SetBit(ref songUnlockBits, i, Chapter8SongUnlocked[i]);
+                }
+                writer.Write(songUnlockBits);
             }
             if (EntryVersion >= 4)
             {
@@ -147,7 +182,7 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                 BinaryUtils.SetBit(ref flags, 1, Chapter9SecretChallengePendingLifeUnlock);
                 writer.Write(flags);
                 byte songUnlockBits = 0;
-                for (int i = 0; i < Chapter9SongUnlocked.Length && i < 8; i++)
+                for (int i = 0; i < Chapter9SongUnlocked.Length; i++)
                 {
                     BinaryUtils.SetBit(ref songUnlockBits, i, Chapter9SongUnlocked[i]);
                 }
@@ -158,6 +193,21 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
                 );
                 writer.Write(tierByte);
                 writer.Write(BinaryUtils.WriteString(Chapter9SecretPassword));
+            }
+            if (EntryVersion >= 6)
+            {
+                byte songUnlockBits = 0;
+                for (int i = 0; i < Chapter9Phase2SongUnlocked.Length; i++)
+                {
+                    BinaryUtils.SetBit(ref songUnlockBits, i, Chapter9Phase2SongUnlocked[i]);
+                }
+                writer.Write(songUnlockBits);
+                byte stateByte = 0;
+                BinaryUtils.SetBit(ref stateByte, 0, Chapter9Phase2Begin);
+                BinaryUtils.SetBit(ref stateByte, 1, Chapter9Phase2Passed);
+                BinaryUtils.SetBit(ref stateByte, 2, C9BaselineChallengeReached);
+                writer.Write(stateByte);
+                writer.Write(Chapter9Phase2Step);
             }
             writer.Write(OverflowData);
             return ms.ToArray();
@@ -182,7 +232,9 @@ namespace CreeperMPG.PhiKits.Save.Data.SaveEntries
             }
             else
             {
-                return 5; // 穹顶孤舟
+                return 6; // 穹顶孤舟第二部分更新
+                          // 穹顶孤舟更新的 SaveVersion 均为 7，无法通过存档版本确定唯一 EntryVersion
+                          // 此处认为它是 6，若实际为 5，则在 Deserialize 时会根据数据长度修正
             }
         }
     }

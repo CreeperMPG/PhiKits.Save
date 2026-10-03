@@ -36,6 +36,7 @@ TestResults/
 coverage*.json
 coverage*.xml
 coverage*.info
+tmp_roundtrip
 
 ## NuGet
 *.nupkg

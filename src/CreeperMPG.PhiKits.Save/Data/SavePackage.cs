@@ -219,7 +219,8 @@ namespace CreeperMPG.PhiKits.Save.Data
         // [4] 87  CAMELLIA => GameKey      V2
         // [5] 108 TAKUMI3  => GameProgress V4
         // [6] 111 Side4    => GameKey      V3
-        // [7] 155 CHAP9    => GameProgress V5
+        // [7] 155 CHAP9P1  => GameProgress V5
+        // [7] 157 CHAP9P2  => GameProgress V6
 
         /// <summary>
         /// 尝试通过存档 Entries 的状态反推 SaveVersion
@@ -243,7 +244,7 @@ namespace CreeperMPG.PhiKits.Save.Data
                 saveVersion = (byte)(GameKey.EntryVersion + 3); // 5, 6
                 return GameKey.EntryVersion == 2 || GameKey.EntryVersion == 3;
             }
-            if (GameProgress.EntryVersion == 5)
+            if (GameProgress.EntryVersion == 5 || GameProgress.EntryVersion == 6)
             {
                 saveVersion = 7; // 7
                 return GameKey.EntryVersion == 3;

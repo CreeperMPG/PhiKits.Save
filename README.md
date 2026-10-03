@@ -7,7 +7,7 @@
 [![.NET](https://img.shields.io/badge/.NET-net6.0%20%7C%20net10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**注意：目前 PhiKits.Save 支持的 Phigros 版本范围为 `3.9.0 (111) ~ 4.0.0 (155)`。**
+**注意：目前 PhiKits.Save 支持的 Phigros 版本范围为 `3.9.0 (111) ~ 4.0.1 (157)`。**
 
 ## 🔗 相关项目
 

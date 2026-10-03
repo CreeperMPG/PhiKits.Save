@@ -53,7 +53,7 @@ public class SavePackageZipTests
         Assert.IsTrue(pkg.GameProgress.Chapter9UnlockBegin);
         Assert.IsFalse(string.IsNullOrEmpty(pkg.GameProgress.Chapter9SecretPassword));
         Assert.AreNotEqual("0", pkg.GameProgress.Chapter9SecretPassword);
-        Assert.AreEqual(8, pkg.GameProgress.Chapter9SongUnlocked.Length);
+        Assert.AreEqual(6, pkg.GameProgress.Chapter9SongUnlocked.Length);
         Assert.IsTrue(pkg.GameProgress.Chapter9SongUnlocked[0]);
     }
 
